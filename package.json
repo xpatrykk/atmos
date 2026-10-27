@@ -28,7 +28,7 @@
   "bugs": {
     "url": "https://github.com/xpatrykk/atmos/issues"
   },
-  "homepage": "https://github.com/xpatrykk/atmos#readme",
+  "homepage": "https://atmos-beta-olive.vercel.app",
   "keywords": [
     "react",
     "typescript",

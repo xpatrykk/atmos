@@ -14,7 +14,7 @@
 
 - The project is named Atmos. The npm package uses the authenticated npm account's scope if `atmos` is unavailable.
 - All public copy and documentation are English. Use a plain-text header without a logo.
-- Do not copy Cycle Manager code, history, credentials, or configuration beyond the isolated animation prototype.
+- Do not copy unrelated application code, history, credentials, or configuration into this repository.
 - Keep React external and preserve the Next.js client boundary.
 - Preserve all five animations, eight edge positions, theme controls, and accessibility behavior.
 - Publish only the intended library files and use the MIT license.

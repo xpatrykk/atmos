@@ -66,6 +66,7 @@ export const Studio = () => {
 				<div className="header-divider" />
 				<span className="header-subtitle">A studio for subtle motion</span>
 				<div className="header-actions">
+					<a className="source-link" href="https://github.com/xpatrykk/atmos" target="_blank" rel="noreferrer">GitHub <ArrowUpRight size={12} /></a>
 					<span className="local-tag">
 						<i /> OPEN SOURCE
 					</span>

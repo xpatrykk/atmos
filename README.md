@@ -2,7 +2,7 @@
 
 Subtle, interactive smoke backgrounds for React. Organic motion, your colors, and room for what matters.
 
-[Source](https://github.com/xpatrykk/atmos) · [npm](https://www.npmjs.com/package/@patrykparcheta/atmos) · [MIT license](./LICENSE)
+[Live studio](https://atmos-beta-olive.vercel.app) · [Source](https://github.com/xpatrykk/atmos) · [npm](https://www.npmjs.com/package/@patrykparcheta/atmos) · [MIT license](./LICENSE)
 
 ## Install
 
