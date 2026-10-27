@@ -1,4 +1,4 @@
-import type {SmokePosition, SmokeVariant} from "@xpatrykk/atmos";
+import type {SmokePosition, SmokeVariant} from "@patrykparcheta/atmos";
 
 export const variants: {id: SmokeVariant; name: string; detail: string; tag: string; colors: string[]}[] = [
 	{

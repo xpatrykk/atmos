@@ -1,5 +1,5 @@
 {
-  "name": "@xpatrykk/atmos",
+  "name": "@patrykparcheta/atmos",
   "version": "0.1.0",
   "description": "Subtle, interactive smoke backgrounds for React. Five WebGL animations, eight edge positions, and zero runtime dependencies beyond React.",
   "type": "module",

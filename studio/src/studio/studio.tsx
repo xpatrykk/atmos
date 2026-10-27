@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import {useEffect, useState} from "react";
 
-import {AmbientSmoke} from "@xpatrykk/atmos";
+import {AmbientSmoke} from "@patrykparcheta/atmos";
 import {Button} from "../components/ui/button";
 
 import {CodeDialog} from "./code-dialog";

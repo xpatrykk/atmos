@@ -1,5 +1,5 @@
 {
   "extends": "../tsconfig.json",
-  "compilerOptions": {"types": ["vite/client"], "paths": {"@xpatrykk/atmos": ["../src/index.ts"]}},
+  "compilerOptions": {"types": ["vite/client"], "paths": {"@patrykparcheta/atmos": ["../src/index.ts"]}},
   "include": ["src"]
 }

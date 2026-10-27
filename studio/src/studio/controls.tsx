@@ -6,7 +6,7 @@ import {Switch} from "../components/ui/switch";
 
 import {palettes, positions} from "./presets";
 
-import type {AmbientSmokeProps} from "@xpatrykk/atmos";
+import type {AmbientSmokeProps} from "@patrykparcheta/atmos";
 import type {Dispatch, SetStateAction} from "react";
 
 export type StudioConfig = Required<

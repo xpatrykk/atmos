@@ -9,7 +9,7 @@ export const CodeDialog = ({open, onOpenChange, config}: {open: boolean; onOpenC
   const [copied, setCopied] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
   const [copyError, setCopyError] = useState(false);
-  const snippet = `import { Atmos } from "@xpatrykk/atmos";
+  const snippet = `import { Atmos } from "@patrykparcheta/atmos";
 
 export default function Home() {
   return (
@@ -55,7 +55,7 @@ export default function Home() {
       <Dialog.Portal><Dialog.Overlay className="dialog-overlay" /><Dialog.Content className="code-dialog">
         <div className="dialog-header"><div><span className="eyebrow">TAKE THE ATMOSPHERE WITH YOU</span><Dialog.Title>A little component. Your own atmosphere.</Dialog.Title></div><Dialog.Close asChild><Button variant="ghost" size="icon" aria-label="Close code"><X /></Button></Dialog.Close></div>
         <Dialog.Description>Install Atmos in your React project, then copy your configuration below. The component only needs React. Tailwind classes in this example are optional.</Dialog.Description>
-        <pre className="install-command"><code>npm install @xpatrykk/atmos</code></pre>
+        <pre className="install-command"><code>npm install @patrykparcheta/atmos</code></pre>
         <div className="code-toolbar"><span>your-page.tsx</span><Button variant="ghost" size="sm" onClick={copy}>{copied ? <Check /> : <Copy />}{copied ? "Copied" : "Copy example"}</Button></div>
         <pre className="code-block" tabIndex={0}><code>{snippet}</code></pre>
         {copyError && <p role="status" className="copy-error">Clipboard access was blocked. Select the example and copy it manually.</p>}

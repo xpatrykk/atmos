@@ -2,12 +2,12 @@
 
 Subtle, interactive smoke backgrounds for React. Organic motion, your colors, and room for what matters.
 
-[Source](https://github.com/xpatrykk/atmos) · [npm](https://www.npmjs.com/package/@xpatrykk/atmos) · [MIT license](./LICENSE)
+[Source](https://github.com/xpatrykk/atmos) · [npm](https://www.npmjs.com/package/@patrykparcheta/atmos) · [MIT license](./LICENSE)
 
 ## Install
 
 ```sh
-npm install @xpatrykk/atmos
+npm install @patrykparcheta/atmos
 ```
 
 Requires React 18.2 or 19. Written in TypeScript, with declarations and an ESM build. React is the only runtime peer dependency. The component does not require Tailwind, shadcn/ui, a stylesheet, an API key, or a server.
@@ -15,7 +15,7 @@ Requires React 18.2 or 19. Written in TypeScript, with declarations and an ESM b
 ## Quick start
 
 ```tsx
-import {Atmos} from "@xpatrykk/atmos";
+import {Atmos} from "@patrykparcheta/atmos";
 
 export default function Home() {
   return (
