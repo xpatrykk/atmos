@@ -1,0 +1,5 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {"types": ["vite/client"], "paths": {"@xpatrykk/atmos": ["../src/index.ts"]}},
+  "include": ["src"]
+}

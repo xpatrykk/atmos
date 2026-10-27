@@ -1,0 +1,11 @@
+node_modules/
+dist/
+studio/dist/
+.vercel/
+.work/
+.superpowers/
+.env*
+*.tgz
+*.tsbuildinfo
+.DS_Store
+coverage/

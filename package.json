@@ -1,0 +1,85 @@
+{
+  "name": "@xpatrykk/atmos",
+  "version": "0.1.0",
+  "description": "Subtle, interactive smoke backgrounds for React. Five WebGL animations, eight edge positions, and zero runtime dependencies beyond React.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "sideEffects": false,
+  "license": "MIT",
+  "author": "xpatrykk",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xpatrykk/atmos.git"
+  },
+  "bugs": {
+    "url": "https://github.com/xpatrykk/atmos/issues"
+  },
+  "homepage": "https://github.com/xpatrykk/atmos#readme",
+  "keywords": [
+    "react",
+    "typescript",
+    "webgl",
+    "smoke",
+    "background",
+    "animation",
+    "ambient",
+    "nextjs"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "workspaces": [
+    "studio"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace @atmos/studio",
+    "build": "node scripts/build.mjs && tsc -p tsconfig.build.json",
+    "build:studio": "npm run build && npm run build --workspace @atmos/studio",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p studio/tsconfig.json",
+    "lint": "eslint . --max-warnings 0",
+    "test": "npm run build && node --import tsx --test tests/*.test.ts tests/*.test.tsx tests/*.test.mjs",
+    "check": "npm run typecheck && npm run lint && npm test",
+    "verify": "npm run check && npm run build:studio",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run check"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@testing-library/react": "^16.3.0",
+    "@types/jsdom": "^27.0.0",
+    "@types/node": "^22.20.5",
+    "@types/react": "19.0.0",
+    "@types/react-dom": "19.0.0",
+    "esbuild": "0.28.2",
+    "eslint": "10.13.0",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "globals": "^16.5.0",
+    "jsdom": "^27.0.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "^8.70.0"
+  }
+}
