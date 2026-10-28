@@ -87,13 +87,33 @@ const flushFrame = async (time = 100) => {
   await act(async () => {for (const callback of callbacks) callback(time);});
 };
 
+test("a still update replays its exact frame once for compositors that present a draw late", async () => {
+  context = createContext();
+  render(<Atmos speed={0} />);
+  await flushFrame(100); await flushFrame(116);
+  assert.equal(frames.size, 0);
+  await act(async () => {document.dispatchEvent(new dom.window.MouseEvent("pointermove", {clientX: 640, clientY: 180}));});
+  await flushFrame(140);
+  const phase = uniformValues.get("u_time")!.slice();
+  const point = uniformValues.get("u_pointer")!.slice();
+  const strength = uniformValues.get("u_pointerStrength")!.slice();
+  const count = draws;
+  assert.equal(frames.size, 1);
+  await flushFrame(156);
+  assert.equal(draws, count + 1);
+  assert.deepEqual(uniformValues.get("u_time"), phase);
+  assert.deepEqual(uniformValues.get("u_pointer"), point);
+  assert.deepEqual(uniformValues.get("u_pointerStrength"), strength);
+  assert.equal(frames.size, 0);
+});
+
 test("equivalent normalized props do not redraw a paused decoration", async () => {
   context = createContext();
   const {rerender} = render(<Atmos paused colors={["#abc", "#123456"]} intensity={2} />);
-  await flushFrame();
+  await flushFrame(); await flushFrame(116);
   rerender(<Atmos paused colors={["#aabbcc", "#123456"]} intensity={1} className="changed-wrapper" />);
   await flushFrame(200);
-  assert.equal(draws, 1);
+  assert.equal(draws, 2);
 });
 
 test("animated frames retain GPU configuration until props change and reupload after restoration", async () => {
@@ -184,17 +204,19 @@ test("missing animation APIs leave a visible CSS fallback", () => {
   } finally {cleanup(); Object.assign(window, {requestAnimationFrame: raf, cancelAnimationFrame: caf});}
 });
 
-test("paused components draw once, update on prop changes, and release GPU resources on unmount", async () => {
+test("paused components settle then go idle, update on prop changes, and release GPU resources on unmount", async () => {
   context = createContext();
   const beforeDelete = deletedPrograms;
   const {rerender, unmount} = render(<Atmos paused />);
   await flushFrame();
   assert.equal(draws, 1);
+  await flushFrame(116);
+  assert.equal(draws, 2);
   assert.equal(frames.size, 0);
   rerender(<Atmos paused colors={["#fff", "#000"]} position="top-left" />);
   await flushFrame(200);
-  assert.equal(draws, 2);
-  assert.equal(frames.size, 0);
+  assert.equal(draws, 3);
+  assert.equal(frames.size, 1); // Unmount must cancel the pending presentation replay.
   unmount();
   assert.equal(deletedPrograms, beforeDelete + 1);
   assert.equal(frames.size, 0);
@@ -204,8 +226,9 @@ test("reduced motion produces a still frame without a continuous animation loop"
   context = createContext();
   reducedMotion = true;
   render(<Atmos />);
-  await flushFrame();
-  assert.equal(draws, 1);
+  await flushFrame(); await flushFrame(116);
+  assert.equal(draws, 2);
+  assert.deepEqual(uniformValues.get("u_time"), [2.4]);
   assert.equal(frames.size, 0);
 });
 
@@ -306,12 +329,12 @@ test("missing observers and matchMedia degrade without throwing or leaking a con
   Object.defineProperty(window, "matchMedia", {value: undefined, configurable: true});
   try {
     const {container} = render(<Atmos />);
-    await flushFrame();
+    await flushFrame(); await flushFrame(116);
     assert.equal(container.querySelector("canvas")?.dataset.renderer, "webgl");
     assert.equal(frames.size, 0);
     await act(async () => {window.dispatchEvent(new dom.window.Event("resize"));});
-    await flushFrame(200);
-    assert.equal(draws, 2);
+    await flushFrame(200); await flushFrame(216);
+    assert.equal(draws, 4);
   } finally {
     cleanup();
     Object.assign(globalThis, {ResizeObserver: resize, IntersectionObserver: intersection});
@@ -325,8 +348,8 @@ test("a denied IntersectionObserver does not leave an off-screen render loop", a
   Object.assign(globalThis, {IntersectionObserver: class {constructor() {throw new Error("Observer denied");}}});
   try {
     render(<Atmos />);
-    await flushFrame();
-    assert.equal(draws, 1);
+    await flushFrame(); await flushFrame(116);
+    assert.equal(draws, 2);
     assert.equal(frames.size, 0);
   } finally {cleanup(); Object.assign(globalThis, {IntersectionObserver: original});}
 });
@@ -352,6 +375,19 @@ test("a runtime draw failure releases its context and exposes fallback without s
   assert.equal(frames.size, 0);
 });
 
+test("a presentation replay failure exposes fallback and releases the context", async () => {
+  context = createContext();
+  const {container} = render(<Atmos paused />);
+  await flushFrame(100);
+  const before = releasedContexts;
+  drawThrows = true;
+  await flushFrame(116);
+  assert.equal(container.querySelector("canvas")?.style.visibility, "hidden");
+  assert.equal(container.querySelector("canvas")?.dataset.renderer, "fallback");
+  assert.equal(releasedContexts, before + 1);
+  assert.equal(frames.size, 0);
+});
+
 test("a paused frame follows a live DPR change without requiring a resize event", async () => {
   context = createContext();
   const ratio = window.devicePixelRatio;
@@ -363,7 +399,7 @@ test("a paused frame follows a live DPR change without requiring a resize event"
     assert.equal(canvas.width, 640);
     Object.defineProperty(window, "devicePixelRatio", {value: 2, configurable: true});
     await act(async () => {notifyDpr();});
-    await flushFrame(200);
+    await flushFrame(200); await flushFrame(216);
     assert.equal(canvas.width, 960);
     assert.equal(canvas.height, 540);
     assert.equal(frames.size, 0);
@@ -422,11 +458,11 @@ test("a still frame reappears after resize and runtime reduced-motion changes", 
   await flushFrame();
   reducedMotion = true;
   await act(async () => {notifyMotion();});
-  await flushFrame(200);
+  await flushFrame(200); await flushFrame(216);
   assert.equal(frames.size, 0);
   await act(async () => {notifyResize();});
-  await flushFrame(300);
-  assert.equal(draws, 3);
+  await flushFrame(300); await flushFrame(316);
+  assert.equal(draws, 5);
   reducedMotion = false;
   await act(async () => {notifyMotion();});
   await flushFrame(400);

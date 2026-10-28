@@ -3,9 +3,9 @@
   "version": "0.1.1",
   "playwright": "1.64.1",
   "localBrowserRun": {
-    "startTime": "2026-10-28T08:59:31.611Z",
-    "duration": 147718.631,
-    "expected": 60,
+    "startTime": "2026-10-28T09:41:44.797Z",
+    "duration": 151200.818,
+    "expected": 64,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0
@@ -60,6 +60,6 @@
       "grain": 0.3
     }
   ],
-  "unitTests": 36,
+  "unitTests": 38,
   "physicalIOS": "not available; see real-device acceptance procedure"
 }

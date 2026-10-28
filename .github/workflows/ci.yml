@@ -40,7 +40,12 @@ jobs:
       - run: pnpm verify
       - run: pnpm exec playwright install --with-deps chromium firefox webkit
       - name: Verify browser rendering with a software GPU and virtual display
-        run: xvfb-run --auto-servernum sh -c 'node --import tsx scripts/probe-browser-gpu.mjs && pnpm test:browser --headed --max-failures=1'
+        run: |
+          xvfb-run --auto-servernum sh -c '
+            node --import tsx scripts/probe-browser-gpu.mjs &&
+            pnpm test:browser --headed --project=webkit-desktop --grep="offscreen section|partial-alpha" --max-failures=1 &&
+            pnpm test:browser --headed --max-failures=1
+          '
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
       - name: Preserve browser failure evidence

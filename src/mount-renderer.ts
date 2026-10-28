@@ -8,6 +8,7 @@ export const mountRenderer = (canvas: HTMLCanvasElement, fallback: HTMLDivElemen
   canvasOwners.set(canvas, owner);
   let renderer: ReturnType<typeof createRenderer> | undefined;
   let frameId = 0;
+  let presentationFrameId = 0;
   let previousTime: number | null = null;
   let phase = 2.4;
   let disposed = false;
@@ -18,7 +19,8 @@ export const mountRenderer = (canvas: HTMLCanvasElement, fallback: HTMLDivElemen
   const pointer = {x: 0.5, y: 0.5, targetX: 0.5, targetY: 0.5, strength: 0, targetStrength: 0};
   const pendingPointer = {x: 0, y: 0, dirty: false, left: false};
   const cleanups: (() => void)[] = [];
-  const cancel = () => {if (frameId) window.cancelAnimationFrame(frameId); frameId = 0; previousTime = null;};
+  const cancelPresentation = () => {if (presentationFrameId) window.cancelAnimationFrame(presentationFrameId); presentationFrameId = 0;};
+  const cancel = () => {if (frameId) window.cancelAnimationFrame(frameId); frameId = 0; cancelPresentation(); previousTime = null;};
   const showFallback = () => {
     if (canvas.style.visibility !== "hidden") canvas.style.visibility = "hidden";
     if (canvas.dataset.renderer !== "fallback") canvas.dataset.renderer = "fallback";
@@ -29,6 +31,7 @@ export const mountRenderer = (canvas: HTMLCanvasElement, fallback: HTMLDivElemen
   let motion: MediaQueryList | undefined;
   try {motion = window.matchMedia?.("(prefers-reduced-motion: reduce)");} catch { /* Static is safe if feature detection is denied. */ }
   const reduceMotion = () => !motion || motion.matches;
+  const fail = () => {cancel(); renderer?.dispose(); renderer?.releaseContext(); renderer = undefined; failed = true; showFallback();};
 
   const render = (now: number) => {
     frameId = 0;
@@ -37,6 +40,7 @@ export const mountRenderer = (canvas: HTMLCanvasElement, fallback: HTMLDivElemen
     const moving = !options.paused && !reduceMotion();
     const delta = previousTime === null ? 0 : Math.min((now - previousTime) / 1000, 0.08);
     if (moving && previousTime !== null && delta < 1 / 30) {frameId = window.requestAnimationFrame(render); return;}
+    cancelPresentation();
     const rect = canvas.getBoundingClientRect();
     if (rect.width <= 0 || rect.height <= 0) {previousTime = null; return;}
     previousTime = now;
@@ -60,16 +64,27 @@ export const mountRenderer = (canvas: HTMLCanvasElement, fallback: HTMLDivElemen
     }
     try {
       renderer ??= createRenderer(canvas);
-      if (!renderer.draw(options, phase, {...pointer, strength: options.interactive && !reduceMotion() ? pointer.strength : 0}, rect)) {
+      const framePointer = {...pointer, strength: options.interactive && !reduceMotion() ? pointer.strength : 0};
+      if (!renderer.draw(options, phase, framePointer, rect)) {
         lost = true; showFallback(); return;
       }
       // Do not remove the SSR/static decoration until a real frame has been drawn.
       if (canvas.style.visibility !== "visible") canvas.style.visibility = "visible";
       if (canvas.dataset.renderer !== "webgl") canvas.dataset.renderer = "webgl";
       if (fallback.style.display !== "none") fallback.style.display = "none";
-    } catch {
-      renderer?.dispose(); renderer?.releaseContext(); renderer = undefined; failed = true; showFallback(); return;
-    }
+      if (!moving || options.speed === 0) {
+        const frameRenderer = renderer; const framePhase = phase;
+        // Some compositors present the previous buffer. Replay a still image once,
+        // without advancing simulation time or pointer smoothing, then go idle.
+        presentationFrameId = window.requestAnimationFrame(() => {
+          presentationFrameId = 0;
+          if (disposed || lost || failed || document.hidden || !pageActive || !inView || renderer !== frameRenderer || getOptions().intensity === 0) return;
+          try {
+            if (!frameRenderer.draw(options, framePhase, framePointer, rect)) {lost = true; cancel(); showFallback();}
+          } catch {fail();}
+        });
+      }
+    } catch {fail(); return;}
     if (moving && options.speed > 0) frameId = window.requestAnimationFrame(render);
   };
   const invalidate = () => {

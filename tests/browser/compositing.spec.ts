@@ -88,6 +88,21 @@ test("partial-alpha WebGL matches both Canvas 2D composition and hand-calculated
   }
 });
 
+test("a paused offscreen section presents nonempty edges without any GL readback", async ({page}, info) => {
+  await page.goto("/?palette=solid");
+  await page.addStyleTag({content: ".cookies,.header {visibility:hidden;}"});
+  for (const name of ["sage", "peach"]) {
+    const section = page.locator(`[data-surface="${name}"]`);
+    await section.scrollIntoViewIfNeeded();
+    await expect(section.locator("canvas")).toHaveAttribute("data-renderer", "webgl");
+    const decorated = await section.screenshot({scale: "css"});
+    await section.locator("canvas").evaluate(canvas => {canvas.style.visibility = "hidden";});
+    const plain = await section.screenshot({scale: "css"});
+    expect(difference(decorated, plain).mean, `presented smoke on ${name}`).toBeGreaterThan(0.2);
+    await info.attach(`${name}-presented-without-readback`, {body: decorated, contentType: "image/png"});
+  }
+});
+
 test("legacy comparison records compositor evidence without claiming a physical-device reproduction", async ({page}, info) => {
   await page.goto("/?mode=legacy");
   const legacy = await page.locator('[data-surface="sage"]').screenshot({scale: "css"});

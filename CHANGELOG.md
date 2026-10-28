@@ -13,6 +13,7 @@
 - Cache unchanged palette conversion, uniforms and viewport configuration; reinitialize caches after context restoration.
 - Batch pointer input into the existing frame loop and avoid layout reads on skipped frames and off-screen pointer events.
 - Avoid redundant paused redraws for equivalent normalized props and repeated DOM writes for unchanged renderer state.
+- Replay still frames once without advancing simulation state so first/updated frames reach delayed WebKit GTK compositors; cancel the bounded replay on loss, suspension and cleanup.
 - Preserve the shader, noise, masks, precision, resolution, frame budget and public defaults during the performance changes. Add a 40-combination pixel equality regression against the alpha-corrected original renderer.
 - Standardize repository tooling and CI on pinned pnpm with a frozen lockfile and all-severity dependency audit.
 

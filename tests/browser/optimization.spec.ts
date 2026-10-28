@@ -63,6 +63,7 @@ test("zero intensity and unchanged paused props produce no GPU work", async ({pa
   expect(await canvas.getAttribute("data-draws")).toBeNull();
   await page.getByRole("button", {name: "Toggle intensity", exact: true}).click();
   await expect(canvas).toHaveAttribute("data-renderer", "webgl");
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   const count = await canvas.getAttribute("data-draws");
   await page.getByRole("button", {name: "Click through decoration: 0", exact: true}).click();
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
