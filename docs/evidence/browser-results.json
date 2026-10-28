@@ -1,0 +1,62 @@
+{
+  "recorded": "2026-10-28",
+  "playwright": "1.64.1",
+  "runs": [
+    {
+      "label": "Primary desktop and mobile-size",
+      "stats": {
+        "startTime": "2026-10-28T08:31:11.159Z",
+        "duration": 87327.422,
+        "expected": 48,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "legacySageScreenshotDeltas": [
+        {
+          "project": "chromium-desktop",
+          "mean": 0.17511006289308176,
+          "maximum": 1,
+          "changedFraction": 0
+        },
+        {
+          "project": "chromium-mobile-size",
+          "mean": 0.16347985347985347,
+          "maximum": 1,
+          "changedFraction": 0
+        },
+        {
+          "project": "webkit-desktop",
+          "mean": 0.17711141060197663,
+          "maximum": 1,
+          "changedFraction": 0
+        },
+        {
+          "project": "webkit-mobile-size",
+          "mean": 0.17542124542124543,
+          "maximum": 3,
+          "changedFraction": 0
+        }
+      ]
+    },
+    {
+      "label": "Older WebKit revision 2336 mobile-size",
+      "stats": {
+        "startTime": "2026-10-28T08:35:38.143Z",
+        "duration": 17494.079999999998,
+        "expected": 12,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "legacySageScreenshotDeltas": [
+        {
+          "project": "webkit-comparison",
+          "mean": 0.17542124542124543,
+          "maximum": 3,
+          "changedFraction": 0
+        }
+      ]
+    }
+  ]
+}

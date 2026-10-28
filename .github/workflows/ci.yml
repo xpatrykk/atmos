@@ -2,14 +2,17 @@ name: CI
 
 on:
   push:
-    branches: [main]
   pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 7 * * *'
 
 permissions:
   contents: read
 
 jobs:
-  verify:
+  dependency-audit:
+    name: Dependency audit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -18,7 +21,40 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: npm run verify
-      - run: npm pack --dry-run
+      - run: corepack enable && corepack prepare pnpm@11.19.0 --activate
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm security:audit
+  verify:
+    needs: dependency-audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          fetch-depth: 0 # The compatibility lab compares against tag v0.1.0.
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+      - run: corepack enable && corepack prepare pnpm@11.19.0 --activate
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm verify
+      - run: pnpm exec playwright install --with-deps chromium firefox webkit
+      - name: Verify browser rendering with a software GPU and virtual display
+        run: |
+          xvfb-run --auto-servernum sh -c '
+            node --import tsx scripts/probe-browser-gpu.mjs &&
+            pnpm test:browser --headed --project=webkit-desktop --grep="offscreen section|partial-alpha" --max-failures=1 &&
+            pnpm test:browser --headed --max-failures=1
+          '
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+      - name: Preserve browser failure evidence
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: browser-results-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .work/browser-results/
+            .work/browser-results.json
+          retention-days: 7
+      - run: pnpm pack --pack-destination .work/package

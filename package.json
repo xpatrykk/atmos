@@ -1,6 +1,6 @@
 {
   "name": "@patrykparcheta/atmos",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Subtle, interactive smoke backgrounds for React. Five WebGL animations, eight edge positions, and zero runtime dependencies beyond React.",
   "type": "module",
   "main": "./dist/index.js",
@@ -46,29 +46,31 @@
   "engines": {
     "node": ">=20.19.0"
   },
-  "workspaces": [
-    "studio"
-  ],
   "scripts": {
-    "dev": "npm run dev --workspace @atmos/studio",
+    "dev": "pnpm --filter @atmos/studio dev",
     "build": "node scripts/build.mjs && tsc -p tsconfig.build.json",
-    "build:studio": "npm run build && npm run build --workspace @atmos/studio",
+    "build:studio": "pnpm build && pnpm --filter @atmos/studio build",
     "typecheck": "tsc --noEmit && tsc --noEmit -p studio/tsconfig.json",
     "lint": "eslint . --max-warnings 0",
-    "test": "npm run build && node --import tsx --test tests/*.test.ts tests/*.test.tsx tests/*.test.mjs",
-    "check": "npm run typecheck && npm run lint && npm test",
-    "verify": "npm run check && npm run build:studio",
-    "prepack": "npm run build",
-    "prepublishOnly": "npm run check"
+    "test": "pnpm build && node --import tsx --test tests/*.test.ts tests/*.test.tsx tests/*.test.mjs",
+    "check": "pnpm typecheck && pnpm lint && pnpm test",
+    "verify": "pnpm check && pnpm build:studio",
+    "prepack": "pnpm build",
+    "prepublishOnly": "pnpm check",
+    "test:browser": "playwright test",
+    "dev:compat": "node scripts/prepare-legacy.mjs && pnpm --filter @atmos/studio exec vite --config ../tests/browser/vite.config.mjs --host 0.0.0.0 --port 4320 --strictPort",
+    "security:audit": "pnpm audit --audit-level low"
   },
   "peerDependencies": {
     "react": "^18.2.0 || ^19.0.0"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
+    "@playwright/test": "1.64.1",
     "@testing-library/react": "^16.3.0",
     "@types/jsdom": "^27.0.0",
     "@types/node": "^22.20.5",
+    "@types/pngjs": "^6.0.5",
     "@types/react": "19.0.0",
     "@types/react-dom": "19.0.0",
     "esbuild": "0.28.2",
@@ -76,10 +78,12 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "globals": "^16.5.0",
     "jsdom": "^27.0.0",
+    "pngjs": "^7.0.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "tsx": "^4.21.0",
     "typescript": "6.0.3",
     "typescript-eslint": "^8.70.0"
-  }
+  },
+  "packageManager": "pnpm@11.19.0"
 }
