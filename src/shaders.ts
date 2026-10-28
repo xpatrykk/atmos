@@ -111,6 +111,7 @@ void main() {
   float grain = (hash(gl_FragCoord.xy) - 0.5) * u_grain * 0.13;
   float alpha = clamp(density * edgeMask * centerMask * u_intensity * (1.0 + u_light * 0.1), 0.0, 0.85);
   color = clamp(color + grain, 0.0, 1.0);
-  gl_FragColor = vec4(color, alpha);
+  // Match the premultiplied-alpha drawing buffer, including exactly zero RGB at alpha=0.
+  gl_FragColor = vec4(color * alpha, alpha);
 }
 `;

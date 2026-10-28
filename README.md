@@ -74,6 +74,7 @@ Each variation uses a different motion field. Changing the variation preserves y
 | `grain` | `number` | `0.3` | Fine film grain, clamped to 0–1 |
 | `interactive` | `boolean` | `true` | Gently distort the smoke near a mouse or pen pointer |
 | `paused` | `boolean` | `false` | Freeze the current animation frame |
+| `renderMode` | `"auto" \| "static"` | `"auto"` | Try WebGL with automatic fallback, or explicitly use CSS without allocating a context |
 | `className` | `string` | — | Optional class on the decorative wrapper |
 
 Available positions: `top-left`, `top`, `top-right`, `left`, `right`, `bottom-left`, `bottom`, `bottom-right`.
@@ -97,32 +98,55 @@ The published entry preserves `"use client"`. You can import `Atmos` into an App
 ## Accessibility and performance
 
 - The effect is decorative (`aria-hidden`) and does not intercept clicks (`pointer-events: none`).
-- `prefers-reduced-motion: reduce` produces a still frame and disables pointer distortion.
-- Rendering pauses outside the viewport and in hidden tabs. Unmounting releases the animation frame, observers, event listeners, and GPU resources.
+- `prefers-reduced-motion: reduce` produces a still frame and disables pointer distortion; changes to this preference take effect while mounted.
+- Rendering pauses outside the viewport and in hidden tabs, and resumes on return. Nonzero, visible containers allocate WebGL lazily. Unmounting releases animation frames, observers, event listeners, and GPU resources; detached canvases also release their context when the browser exposes the extension.
 - Resolution is capped at 1400 × 1000 and device pixel ratio at 1.5. Motion renders at up to 30 fps.
-- If WebGL is unavailable, shader initialization fails, or the context is lost, a static CSS gradient remains visible. The fallback is simpler than the animated renderer.
+- At `intensity={0}`, GPU allocation/drawing is skipped while the simulation clock continues for a smooth return. Unchanged palettes and configuration are not repeatedly uploaded; pointer events are processed once per rendered frame.
+- If WebGL is unavailable, context creation is denied, shader initialization fails, or the context is lost, a static CSS gradient remains visible and the canvas is hidden. Restoration rebuilds GPU resources. The fallback uses all palette colors and nested, prefixed masks; it is simpler than the animated renderer.
+- Missing observers or motion detection select a still frame; missing animation APIs keep the CSS fallback. Explicit `renderMode="static"` avoids WebGL entirely.
 
 The edge mask stays independent of turbulence, and the center fades out. Content should have its own higher layer. If you put text directly at a colorful edge, give it an opaque surface when necessary; Atmos cannot automatically detect or protect arbitrary content rectangles. It is a decorative procedural shader, not a physical fluid simulation.
+
+## Safari and browser support
+
+The renderer targets browsers with WebGL 1; the CSS fallback uses radial gradients and CSS masks (including `-webkit-mask-image`). No user-agent detection is used. For a known problematic environment, choose a stable static decoration:
+
+```tsx
+<Atmos renderMode="static" colors={["#648d76", "#d79473", "#8d82b2"]} />
+```
+
+The Safari repair in 0.1.1 pairs a premultiplied WebGL context with premultiplied shader output. This avoids the straight-alpha compositing path that can bleach HTML surfaces and consequently alter glass panels sampling those surfaces. The repair was reproduced and verified in native macOS Safari 27.0.1. Desktop automation does not establish physical iOS compatibility. Chromium and WebKit regression coverage, the Firefox launch limitation in the local macOS environment, and the required real-device procedure are recorded in [Safari rendering and acceptance](./docs/safari-rendering.md).
+
+Each visible instance can own a context. Browser limits vary: use static decoration for large repeated lists. Context loss reveals the fallback; Atmos does not promise an unlimited number of animated sections.
+
+See [performance behavior and measured operation counts](./docs/performance.md) for the optimizations in 0.1.1 and the tests preserving the existing visual result.
 
 ## Run the studio
 
 ```sh
 git clone https://github.com/xpatrykk/atmos.git
 cd atmos
-npm ci
-npm run dev
+corepack enable
+pnpm install --frozen-lockfile
+pnpm dev
 ```
 
 Open [localhost:4317](http://127.0.0.1:4317). The studio uses React, Tailwind CSS 4, and local shadcn/ui components built on Radix. Pick a variation, adjust its palette and placement, and use **Use in your project** to copy or download an example with your current settings. The studio and documentation are entirely in English.
 
 ```sh
-npm run check         # TypeScript, ESLint, and tests
-npm run build         # Library ESM and declarations in dist/
-npm run build:studio  # Production studio in studio/dist/
-npm pack --dry-run    # Inspect the npm archive
+pnpm security:audit  # All dependency severities
+pnpm check           # TypeScript, ESLint, and tests
+pnpm build           # Library ESM and declarations in dist/
+pnpm build:studio    # Production studio in studio/dist/
+pnpm pack --dry-run  # Inspect the npm archive
+pnpm exec playwright install chromium firefox webkit
+pnpm test:browser    # GPU/compositor and lifecycle regressions
+pnpm dev:compat      # Local comparison lab on port 4320
 ```
 
 Vercel uses the root `vercel.json` to build and serve the studio. It requires no environment variables. See [CONTRIBUTING.md](./CONTRIBUTING.md) for development and release instructions.
+
+Development uses Node.js 22, pinned pnpm 11.19.0 and a single `pnpm-lock.yaml`. The compatibility lab needs the `v0.1.0` Git tag (`git fetch --tags` in a shallow checkout).
 
 ## License
 

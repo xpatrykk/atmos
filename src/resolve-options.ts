@@ -28,5 +28,6 @@ export const resolveOptions = (props: AmbientSmokeProps) => {
     grain: finiteControl(props.grain, 0.3, 0, 1),
     interactive: props.interactive !== false,
     paused: props.paused === true,
+    renderMode: props.renderMode === "static" ? "static" as const : "auto" as const,
   };
 };

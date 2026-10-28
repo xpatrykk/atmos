@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-28",
+  "version": "0.1.1",
+  "playwright": "1.64.1",
+  "localBrowserRun": {
+    "startTime": "2026-10-28T08:59:31.611Z",
+    "duration": 147718.631,
+    "expected": 60,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "visualContinuity": [
+    {
+      "project": "chromium-desktop",
+      "combinations": 40,
+      "maximumChannelDelta": 0,
+      "phase": 3.75,
+      "pointer": [
+        0.23,
+        0.71
+      ],
+      "pointerStrength": 0.35,
+      "grain": 0.3
+    },
+    {
+      "project": "chromium-mobile-size",
+      "combinations": 40,
+      "maximumChannelDelta": 0,
+      "phase": 3.75,
+      "pointer": [
+        0.23,
+        0.71
+      ],
+      "pointerStrength": 0.35,
+      "grain": 0.3
+    },
+    {
+      "project": "webkit-desktop",
+      "combinations": 40,
+      "maximumChannelDelta": 0,
+      "phase": 3.75,
+      "pointer": [
+        0.23,
+        0.71
+      ],
+      "pointerStrength": 0.35,
+      "grain": 0.3
+    },
+    {
+      "project": "webkit-mobile-size",
+      "combinations": 40,
+      "maximumChannelDelta": 0,
+      "phase": 3.75,
+      "pointer": [
+        0.23,
+        0.71
+      ],
+      "pointerStrength": 0.35,
+      "grain": 0.3
+    }
+  ],
+  "unitTests": 36,
+  "physicalIOS": "not available; see real-device acceptance procedure"
+}

@@ -19,4 +19,6 @@ export interface AmbientSmokeProps {
 	interactive?: boolean;
 	paused?: boolean;
 	className?: string;
+	/** Use the CSS fallback without allocating a WebGL context. Default: auto. */
+	renderMode?: "auto" | "static";
 }
