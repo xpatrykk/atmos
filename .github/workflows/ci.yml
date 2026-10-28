@@ -39,5 +39,17 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm verify
       - run: pnpm exec playwright install --with-deps chromium firefox webkit
-      - run: pnpm test:browser
+      - name: Verify browser rendering with a software GPU and virtual display
+        run: xvfb-run --auto-servernum sh -c 'node --import tsx scripts/probe-browser-gpu.mjs && pnpm test:browser --headed --max-failures=1'
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+      - name: Preserve browser failure evidence
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: browser-results-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .work/browser-results/
+            .work/browser-results.json
+          retention-days: 7
       - run: pnpm pack --pack-destination .work/package
